@@ -1,4 +1,8 @@
-streamingapi-demo
-=================
+Streaming API Demo
+==================
 
-Demo app for the streaming rates API
+A simple Javascript program that compares the polling rates API with the streaming API side by side
+
+### Demo
+
+http://oanda.github.com/streamingapi-demo/streamingapi-demo.html
