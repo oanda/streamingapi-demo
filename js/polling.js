@@ -1,5 +1,5 @@
 var doPolling = false;
-var pollingTimeout = 200;
+var pollingTimeout = 1000;
 
 function startPolling ( onTickFunction )
 {
