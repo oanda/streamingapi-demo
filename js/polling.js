@@ -32,7 +32,7 @@ function onePollingCycle ( onTickFunction )
      }
   }
   
-  mygetrequest.open("GET", "http://api-sandbox.oanda.com/v1/instruments/price?instruments=" + req, true);
+  mygetrequest.open("GET", "http://api-sandbox.oanda.com/v1/quote?instruments=" + req, true);
   mygetrequest.send(null);
                           
   if ( doPolling )  
