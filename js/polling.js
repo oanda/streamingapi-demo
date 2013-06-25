@@ -25,7 +25,7 @@ function onePollingCycle ( onTickFunction )
      req = "";
      for(var i = 0; i < availablePairs.length; i++)
      {
-       if ( req.length > 0 ) req += ",";
+       if ( req.length > 0 ) req += "%2C";
        var pair = availablePairs[i];
        var splitp = splitName( pair )
        req += splitp[0] + "_" + splitp[1];
