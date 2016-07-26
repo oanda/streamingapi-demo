@@ -5,29 +5,29 @@ var availablePairs = [];
 function splitName ( displayName )
 {
    if (displayName.length != 7 ) return [];
-  
+
    if (displayName.charAt(3) != '/') return [];
 
    return [ displayName.substr(0,3), displayName.substr(4,3) ];
 }
 
 function getInstruments( debug ) {
-  
+
    var myinitrequest=new XMLHttpRequest();
 
    myinitrequest.onreadystatechange = function() {
-   
+
       if (myinitrequest.readyState!=4 || myinitrequest.status!=200 ) return;
 
       var currencyData = JSON.parse(myinitrequest.responseText);
-      
+
       //for ( var instrument in currencyData.instruments)
       //  if (currencyData.instruments.hasOwnProperty(instrument))
 
       for(var i = 0; i < currencyData.instruments.length; i++)
       {
           var pairName = currencyData.instruments[i].displayName;
-            
+
           var pair = splitName(pairName);
 
           if ( pair.length != 2 ) continue;
@@ -35,7 +35,7 @@ function getInstruments( debug ) {
           if ( currencies.indexOf(pair[0]) < 0 || currencies.indexOf(pair[1]) < 0 ) continue;
 
           availablePairs.push(pairName);
-         
+
           if ( debug )
           {
               var listItem = document.createElement("li");
@@ -45,6 +45,7 @@ function getInstruments( debug ) {
       }
    }
 
-   myinitrequest.open("GET", "http://api-sandbox.oanda.com/v1/instruments", true);   
+   myinitrequest.open("GET", "https://api-fxpractice.oanda.com/v1/instruments?accountId=" + account, true);
+   myinitrequest.setRequestHeader('Authorization', 'Bearer ' + token);
    myinitrequest.send(null);
 }

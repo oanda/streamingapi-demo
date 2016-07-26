@@ -1,24 +1,44 @@
-var streamingSocket;
+var mygetrequest;
 
 function startStreaming ( onTickFunction )
 {
-  streamingSocket = io.connect('http://api-sandbox.oanda.com', {'force new connection':true , resource:'ratestream'});   // forcing due to socket.io bug
-  
-  streamingSocket.on('connect', function () {
-  
-    var currencyList = ['EUR/USD'];
-    if ( allRates ) currencyList = availablePairs;
-    
-    streamingSocket.emit('subscribe', {'instruments': currencyList});
+  mygetrequest=new XMLHttpRequest();
 
-    streamingSocket.on('tick', function (data) {
-      onTickFunction( data );
-    });
-  });
+  mygetrequest.onreadystatechange = function() {
+      if (mygetrequest.readyState<3 || mygetrequest.status!=200 ) return;
+
+      var lines = mygetrequest.responseText.split('\n')
+      for (var i = 0; i < lines.length; i++)
+      {
+        if (lines[i].length > 0) {
+          var data = JSON.parse(lines[i]);
+          if (data.tick) {
+            onTickFunction(data.tick);
+          }
+        }
+      }
+  };
+
+  var req = "EUR_USD";
+  if (allRates)
+  {
+     req = "";
+     for(var i = 0; i < availablePairs.length; i++)
+     {
+       if ( req.length > 0 ) req += "%2C";
+       var pair = availablePairs[i];
+       var splitp = splitName( pair )
+       req += splitp[0] + "_" + splitp[1];
+     }
+  }
+
+  mygetrequest.open("GET", "https://stream-fxpractice.oanda.com/v1/prices?accountId=" + account + "&instruments=" + req, true);
+  mygetrequest.setRequestHeader('Authorization', 'Bearer ' + token);
+  mygetrequest.send(null);
+
 }
 
 function endStreaming ()
 {
-  streamingSocket.disconnect();
-  streamingSocket.removeAllListeners();
+  mygetrequest.abort();
 }

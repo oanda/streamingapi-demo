@@ -18,13 +18,13 @@ function initRaphael ( divTag )
                     stroke: "none",
                     fill: "#FFFFFF"
                   });
-                
+
     var squares = {};
-      
+
     for ( var i = 0; i < currencies.length; i++)
     {
         _paper.text( 25, i*15 + 7, currencies[i] );
-        
+
         for ( var p = 0; p < currencies.length; p++ )
         {
             //var fill = Raphael.rgb( p*200/currencies.length + 50, i*200/currencies.length + 50, 128 );
@@ -32,11 +32,11 @@ function initRaphael ( divTag )
                                stroke: "none",
                                fill:   "#CCCCCC"
                            });
-                   
+
             squares[ currencies[i]+"/"+currencies[p] ] = nextRect;
         }
-    }    
-    
+    }
+
     return squares;
 }
 
@@ -52,7 +52,10 @@ var oldTimePoll = 0;
 function onTickStream ( data )
 {
   console.log("Stream tick:" + data.instrument + " " + data.bid);
-  
+
+  var pair  = data.instrument;
+  var instr = pair.replace("_","/");
+
   var fill     = "#AAAAAA";
   var nextFill = "#999999";
   if ( oldValuesStream[data.instrument]  != undefined )
@@ -60,16 +63,16 @@ function onTickStream ( data )
     if ( data.bid > oldValuesStream[data.instrument] ) { fill = "#00FF00"; nextFill = "#00CC00"; }
     if ( data.bid < oldValuesStream[data.instrument] ) { fill = "#FF0000"; nextFill = "#CC0000"; }
   }
-  oldValuesStream[data.instrument] = data.bid;
-  
-  var rect = squaresStream[data.instrument];
+  oldValuesStream[instr] = data.bid;
+
+  var rect = squaresStream[instr];
   rect.attr({ "fill": fill });
-  
-  if ( data.instrument == "EUR/USD" )
+
+  if ( instr == "EUR/USD" )
   {
      oldTimeStream = data.timestamp*1000000 + data.timeusec;
   }
-  
+
   setTimeout( function() { rect.attr({ "fill": nextFill }); }, 90 );
 }
 
@@ -90,22 +93,22 @@ function onTickPoll ( data )
        if ( bid < oldValuesPoll[instr] ) { fill = "#FF0000"; nextFill = "#CC0000"; }
      }
      oldValuesPoll[instr] = bid;
-          
+
      if ( instr == "EUR/USD" )
      {
        oldTimePoll = data.prices[i].time * 1000000;
      }
-     
+
      var rect = squaresPoll[instr];
-     rect.attr({ "fill": fill });       
+     rect.attr({ "fill": fill });
      setTimeout( function() {
                    var _rect = rect;
                    var _fill = nextFill;
                    return function() {
                      _rect.attr({ "fill": _fill });
                    }
-                 }(), 90 );                                       
-  }  
+                 }(), 90 );
+  }
 }
 
 
@@ -113,15 +116,15 @@ function checkPollDelay ()
 {
   str = "";
   if (oldTimePoll != oldTimeStream )
-  {  
+  {
      if ( oldTimeStream > oldTimePoll )
        str = "EUR/USD: Streamign newer by " + (oldTimeStream - oldTimePoll) + " usec";
      else
-       str = "EUR/USD: polling is newer by " + (oldTimePoll - oldTimeStream) + " usec";     
+       str = "EUR/USD: polling is newer by " + (oldTimePoll - oldTimeStream) + " usec";
   }
-  
+
   document.getElementById("comparision").innerHTML = str;
-  
+
   //setTimeout( checkPollDelay , 15 );
 }
 
@@ -134,26 +137,26 @@ function startUI ( checkboxPoll, checkboxStream, ratePick, pollRate ) {
    $(checkboxStream).click(function() {
      if($(this).is(":checked")) { startStreaming( onTickStream ); } else { endStreaming(); }
    });
-  
+
    $(ratePick).change(function() {
       allRates = !allRates;
       if ( allRates ) console.log("getting all rates"); else console.log("getting EUR/USD only");
-      
+
       if ( $(checkboxStream).is(":checked") )
       {
         endStreaming();
         startStreaming( onTickStream );
       }
-      
+
    });
-   
+
    $(pollRate).change(function() {
      var selected = $(pollRate + " input[type='radio']:checked");
      pollingTimeout = selected.val();
    });
-   
+
    squaresStream = initRaphael( "streamAPI" );
    squaresPoll   = initRaphael( "restAPI" );
-   
-   //checkPollDelay();       
+
+   //checkPollDelay();
 }

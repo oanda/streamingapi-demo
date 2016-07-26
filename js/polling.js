@@ -10,15 +10,15 @@ function startPolling ( onTickFunction )
 function onePollingCycle ( onTickFunction )
 {
   var mygetrequest=new XMLHttpRequest();
-  
+
   mygetrequest.onreadystatechange = function() {
-      if (mygetrequest.readyState!=4 || mygetrequest.status!=200 ) return;        
+      if (mygetrequest.readyState!=4 || mygetrequest.status!=200 ) return;
 
       var data = JSON.parse(mygetrequest.responseText);
-    
+
       onTickFunction(data);
   };
-            
+
   var req = "EUR_USD";
   if (allRates)
   {
@@ -31,11 +31,12 @@ function onePollingCycle ( onTickFunction )
        req += splitp[0] + "_" + splitp[1];
      }
   }
-  
-  mygetrequest.open("GET", "http://api-sandbox.oanda.com/v1/quote?instruments=" + req, true);
+
+  mygetrequest.open("GET", "https://api-fxpractice.oanda.com/v1/prices?instruments=" + req, true);
+  mygetrequest.setRequestHeader('Authorization', 'Bearer ' + token);
   mygetrequest.send(null);
-                          
-  if ( doPolling )  
+
+  if ( doPolling )
   {
     setTimeout( function() { onePollingCycle(onTickFunction); }, pollingTimeout );
   }
